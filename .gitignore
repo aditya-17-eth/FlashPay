@@ -1,0 +1,67 @@
+# === Dependencies ===
+node_modules/
+.pnp/
+.pnp.js
+
+# === Build outputs ===
+.next/
+out/
+build/
+dist/
+target/
+*.wasm
+
+# === Environment / Secrets ===
+# Block all .env files globally in any nested folder
+**/.env
+**/.env.*
+**/*.env
+**/*.env.*
+
+# Always allow .example or template files so other devs can use them
+!**/*.example
+!**/*.sample
+!**/*.template
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === Logs ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Testing ===
+coverage/
+test-results/
+playwright-report/
+
+# === Sentry ===
+.sentryclirc
+
+# === Vercel ===
+.vercel/
+
+# === Rust / Soroban ===
+contracts/target/
+contracts/**/target/
+**/*.rs.bk
+.soroban/
+.stellar/
+
+# === TypeScript ===
+*.tsbuildinfo
+next-env.d.ts
+
+# === Misc ===
+*.log

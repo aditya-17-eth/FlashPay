@@ -1,0 +1,23 @@
+name: Frontend CI
+on: [push, pull_request]
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+        working-directory: frontend
+      - run: pnpm test
+        working-directory: frontend
+      - run: pnpm exec playwright install --with-deps
+        working-directory: frontend
+      - run: pnpm exec playwright test
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_STELLAR_NETWORK: testnet
+          NEXT_PUBLIC_FLASHPAY_CONTRACT_ID: ${{ secrets.CONTRACT_ID }}
