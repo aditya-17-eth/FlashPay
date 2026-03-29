@@ -8,8 +8,9 @@ import {
   isConnected,
 } from "@stellar/freighter-api";
 import { Wallet } from "lucide-react";
+import { getUSDCBalance } from "@/lib/faucet";
+import { USDCFaucet } from "@/components/wallet/USDCFaucet";
 
-/** Helper to wrap promises with a timeout */
 function withTimeout<T>(promise: Promise<T>, ms: number = 3000): Promise<T> {
   return Promise.race([
     promise,
@@ -20,17 +21,27 @@ function withTimeout<T>(promise: Promise<T>, ms: number = 3000): Promise<T> {
 export function WalletConnect() {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [usdcBalance, setUsdcBalance] = useState("0");
+
+  async function refreshUSDCBalance(publicKey?: string) {
+    const targetWallet = publicKey || wallet;
+    if (!targetWallet) {
+      setUsdcBalance("0");
+      return;
+    }
+
+    const balance = await getUSDCBalance(targetWallet);
+    setUsdcBalance(balance);
+  }
 
   useEffect(() => {
     let mounted = true;
 
     async function initCheck() {
-      // Small initial delay so extension has time to inject its message listener
       await new Promise((r) => setTimeout(r, 200));
       if (!mounted) return;
 
       try {
-        // Quick short timeout for initial connection check so we don't hang if they don't have it
         const isConnResult = (await withTimeout(isConnected() as any, 1000)) as any;
         const connected = isConnResult === true || isConnResult?.isConnected === true;
 
@@ -40,49 +51,51 @@ export function WalletConnect() {
 
           if (allowed) {
             const addrResult = (await withTimeout(getAddress() as any, 1000)) as any;
-            const address = typeof addrResult === 'string' ? addrResult : addrResult?.address;
+            const address = typeof addrResult === "string" ? addrResult : addrResult?.address;
 
             if (address) {
               setWallet(address);
+              refreshUSDCBalance(address).catch(() => {});
               registerUser(address).catch(() => {});
             }
           }
         }
-      } catch (e) {
-         // Silently fail if Freighter hangs or is missing
+      } catch {
+        // Silently fail if Freighter hangs or is missing
       }
-      
+
       if (mounted) setLoading(false);
     }
 
     initCheck();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   async function connect() {
     setLoading(true);
     try {
-      // When connecting manually, give a bit longer timeout (2000ms) for the extension to wake up
       let connected = false;
       try {
         const isConnResult = (await withTimeout(isConnected() as any, 2000)) as any;
         connected = isConnResult === true || isConnResult?.isConnected === true;
-      } catch (e) {
+      } catch {
         // timeout
       }
 
       if (!connected) {
-         alert("Freighter extension is not installed or detected! Please install Freighter and refresh.");
-         setLoading(false);
-         return;
+        alert("Freighter extension is not installed or detected! Please install Freighter and refresh.");
+        setLoading(false);
+        return;
       }
 
-      // No timeout for requestAccess since the user has to click the popup
-      const accessResult = await requestAccess() as any;
-      const address = typeof accessResult === 'string' ? accessResult : accessResult?.address;
-      
+      const accessResult = (await requestAccess()) as any;
+      const address = typeof accessResult === "string" ? accessResult : accessResult?.address;
+
       if (address) {
         setWallet(address);
+        refreshUSDCBalance(address).catch(() => {});
         registerUser(address).catch(() => {});
       } else if (accessResult?.error) {
         alert(`Freighter Connection Failed: ${accessResult.error}`);
@@ -98,6 +111,7 @@ export function WalletConnect() {
 
   function disconnect() {
     setWallet(null);
+    setUsdcBalance("0");
   }
 
   async function registerUser(pubKey: string) {
@@ -142,6 +156,15 @@ export function WalletConnect() {
       >
         Disconnect
       </button>
+
+      {Number(usdcBalance) <= 0.01 ? (
+        <USDCFaucet
+          userPublicKey={wallet}
+          onSuccess={() => {
+            refreshUSDCBalance(wallet).catch(() => {});
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -15,26 +15,53 @@ export async function verifyPayment(
   tool: ToolName
 ) {
   // If we are using a mock Supabase, skip DB checks to avoid ENOTFOUND crash
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("mock")) {
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("mock")
+  ) {
     const supabase = getServiceSupabase();
     try {
-      const { data: existingTx } = await supabase
+      const { data: existingTx, error: existingTxError } = await supabase
         .from("transactions")
-        .select("*")
+        .select("id")
         .eq("nonce", nonce)
-        .single();
+        .maybeSingle();
+
+      if (existingTxError) {
+        throw existingTxError;
+      }
 
       if (existingTx) {
         throw new Error("Nonce already used");
       }
-      
-      await supabase.from("transactions").insert({
+
+      const timestamp = new Date().toISOString();
+
+      const { error: userError } = await supabase
+        .from("users")
+        .upsert(
+          {
+            wallet: payerAddress,
+            last_seen: timestamp,
+          },
+          { onConflict: "wallet" }
+        );
+
+      if (userError) {
+        throw userError;
+      }
+
+      const { error: insertError } = await supabase.from("transactions").insert({
         nonce,
         tool,
         payer: payerAddress,
         amount_usdc: TOOL_PRICES[tool],
         status: "pending",
       });
+
+      if (insertError) {
+        throw insertError;
+      }
     } catch (dbError) {
       console.warn("DB indexing skipped or failed:", dbError);
     }
@@ -49,7 +76,13 @@ export async function releasePayment(nonce: number) {
   if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("mock")) return;
   const supabase = getServiceSupabase();
   try {
-    await supabase.from("transactions").update({ status: "released" }).eq("nonce", nonce);
+    await supabase
+      .from("transactions")
+      .update({
+        status: "released",
+        settled_at: new Date().toISOString(),
+      })
+      .eq("nonce", nonce);
   } catch (e) {
     console.warn("Skipped DB status update:", e);
   }
@@ -59,7 +92,13 @@ export async function refundPayment(nonce: number) {
   if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("mock")) return;
   const supabase = getServiceSupabase();
   try {
-    await supabase.from("transactions").update({ status: "refunded" }).eq("nonce", nonce);
+    await supabase
+      .from("transactions")
+      .update({
+        status: "refunded",
+        settled_at: new Date().toISOString(),
+      })
+      .eq("nonce", nonce);
   } catch (e) {
     console.warn("Skipped DB status update:", e);
   }

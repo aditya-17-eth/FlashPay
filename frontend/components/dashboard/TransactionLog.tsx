@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, CheckCircle2, Clock, XCircle } from "lucide-react";
 
+const STELLAR_EXPLORER_ACCOUNT_BASE_URL = "https://stellar.expert/explorer/testnet/account";
+
 export function TransactionLog() {
   const { data: txs, isLoading } = useQuery({
     queryKey: ["transactions"],
@@ -58,7 +60,7 @@ export function TransactionLog() {
                   <div className="flex items-center gap-2 group-hover:text-white transition-colors">
                       {tx.payer.substring(0, 4)}...{tx.payer.substring(52)}
                       <a 
-                        href={`https://testnet.stellar.expert/explorer/account/${tx.payer}`}
+                        href={`${STELLAR_EXPLORER_ACCOUNT_BASE_URL}/${tx.payer}`}
                         target="_blank" 
                         rel="noreferrer"
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400 hover:text-blue-300"

@@ -2,19 +2,34 @@
 
 import { useState } from "react";
 import { isConnected } from "@stellar/freighter-api";
-import { PaymentStatus } from "@/lib/stellar";
+import { PaymentReceipt, PaymentStatus, X402PaymentError } from "@/lib/stellar";
 import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 interface PaymentGateProps {
   price: string;
   buttonText: string;
-  onAction: (updateStatus: (s: PaymentStatus) => void) => Promise<void>;
+  onAction: (updateStatus: (s: PaymentStatus) => void) => Promise<void | PaymentReceipt>;
   disabled?: boolean;
+}
+
+const STELLAR_EXPLORER_BASE_URL = "https://stellar.expert/explorer/testnet";
+
+function getReceiptExplorerUrl(receipt: PaymentReceipt | null): string | undefined {
+  if (!receipt) {
+    return undefined;
+  }
+
+  if (receipt.txHash) {
+    return `${STELLAR_EXPLORER_BASE_URL}/tx/${receipt.txHash}`;
+  }
+
+  return receipt.explorerUrl;
 }
 
 export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGateProps) {
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [lastReceipt, setLastReceipt] = useState<PaymentReceipt | null>(null);
 
   async function handleClick() {
     if (!(await isConnected())) {
@@ -25,19 +40,23 @@ export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGa
     try {
       setStatus("requesting");
       setErrorDetails(null);
-      await onAction(setStatus);
+      const receipt = await onAction(setStatus);
+      setLastReceipt(receipt ?? null);
       setStatus("done");
-      // Reset after a few sec
-      setTimeout(() => setStatus("idle"), 3000);
     } catch (e: any) {
       console.error(e);
       setStatus("error");
+      if (e instanceof X402PaymentError && e.receipt) {
+        setLastReceipt(e.receipt);
+      } else {
+        setLastReceipt(null);
+      }
       setErrorDetails(e.message || "Payment failed, no charge applied");
-      setTimeout(() => setStatus("idle"), 5000);
     }
   }
 
   const isWorking = status !== "idle" && status !== "error" && status !== "done";
+  const receiptExplorerUrl = getReceiptExplorerUrl(lastReceipt);
 
   return (
     <div className="w-full">
@@ -92,6 +111,34 @@ export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGa
          <div className="text-sm text-red-400 text-center animate-pulse">
             {errorDetails}
          </div>
+      )}
+
+      {status === "done" && receiptExplorerUrl && (
+         <div className="text-sm text-green-400 text-center">
+            Transaction successful.{" "}
+            <a
+              href={receiptExplorerUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-4 hover:text-green-300"
+            >
+              View on Stellar Expert
+            </a>
+          </div>
+      )}
+
+      {status === "error" && receiptExplorerUrl && (
+         <div className="text-sm text-red-400 text-center mt-2">
+            Transaction failed on-chain.{" "}
+            <a
+              href={receiptExplorerUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-4 hover:text-red-300"
+            >
+              View on Stellar Expert
+            </a>
+          </div>
       )}
     </div>
   );

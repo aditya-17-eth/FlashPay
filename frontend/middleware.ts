@@ -6,6 +6,19 @@ import type { NextRequest } from "next/server";
 const ipMap = new Map<string, { count: number; time: number }>();
 
 export function middleware(req: NextRequest) {
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+
+  const pathname = req.nextUrl.pathname;
+  const isDashboardApi =
+    pathname.startsWith("/api/metrics") || pathname.startsWith("/api/transactions");
+
+  if (isDashboardApi) {
+    return response;
+  }
+
   const ip = req.ip ?? req.headers.get("x-forwarded-for") ?? "127.0.0.1";
   const now = Date.now();
   const windowMs = 60000;
@@ -30,9 +43,9 @@ export function middleware(req: NextRequest) {
   record.count++;
   ipMap.set(ip, record);
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/api/tools/:path*", "/api/assistant"],
+  matcher: ["/api/:path*"],
 };

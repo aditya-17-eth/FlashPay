@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TOOL_PRICES } from "@/lib/prices";
 import { PaymentGate } from "./PaymentGate";
-import { x402Fetch, PaymentStatus } from "@/lib/stellar";
+import { x402Fetch, PaymentReceipt, PaymentStatus } from "@/lib/stellar";
 import { Copy, SaveAll } from "lucide-react";
 
 export function SummariseTool() {
@@ -11,7 +11,7 @@ export function SummariseTool() {
   const [mode, setMode] = useState<"summarise" | "rewrite" | "bullets">("summarise");
   const [result, setResult] = useState<string | null>(null);
 
-  const handleAction = async (updateStatus: (s: PaymentStatus) => void) => {
+  const handleAction = async (updateStatus: (s: PaymentStatus) => void): Promise<PaymentReceipt | undefined> => {
      if (text.length < 10) return;
      
      const response = await x402Fetch("/api/tools/summarise", { text, mode }, updateStatus);
@@ -23,6 +23,7 @@ export function SummariseTool() {
      if (data.error) throw new Error(data.error);
      
      setResult(data.result);
+     return response.x402Payment;
   };
 
   return (

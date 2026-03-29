@@ -8,11 +8,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/YOUR_ORG/flashpay/actions/workflows/contracts-ci.yml">
-    <img src="https://github.com/YOUR_ORG/flashpay/actions/workflows/contracts-ci.yml/badge.svg" alt="Contracts CI" />
+  <a href="https://github.com/aditya-17-eth/FlashPay/actions/workflows/contracts-ci.yml">
+    <img src="https://github.com/aditya-17-eth/FlashPay/actions/workflows/contracts-ci.yml/badge.svg" alt="Contracts CI" />
   </a>
-  <a href="https://github.com/YOUR_ORG/flashpay/actions/workflows/frontend-ci.yml">
-    <img src="https://github.com/YOUR_ORG/flashpay/actions/workflows/frontend-ci.yml/badge.svg" alt="Frontend CI" />
+  <a href="https://github.com/aditya-17-eth/FlashPay/actions/workflows/frontend-ci.yml">
+    <img src="https://github.com/aditya-17-eth/FlashPay/actions/workflows/frontend-ci.yml/badge.svg" alt="Frontend CI" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" />
@@ -264,5 +264,5 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  <strong>FlashPay — SCF #42 — Open Track — MIT License — March 2026</strong>
+  <strong>FlashPay —  Open Track — MIT License — March 2026</strong>
 </p>
