@@ -173,7 +173,7 @@ Mobile View
 
 > _A walkthrough video demonstrating the full x402 payment flow — from wallet connection to AI tool usage and refund._
 
-🔗 **Video link:** _coming soon_
+🔗 **Video link:** _https://youtu.be/uwUJiIQjnYE_
 
 ---
 
