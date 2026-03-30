@@ -137,7 +137,7 @@ export function ChatInterface() {
                      handleSend();
                   }
                }}
-               placeholder="Chat with the assistant to discover logic..."
+               placeholder="Type your message and ask the assistant anything..."
                className="flex-1 bg-transparent px-4 py-3 focus:outline-none resize-none max-h-32 text-gray-100 placeholder-gray-600 text-lg leading-relaxed"
                rows={1}
                disabled={loading}
@@ -145,6 +145,7 @@ export function ChatInterface() {
              <button 
                onClick={handleSend}
                disabled={!input.trim() || loading}
+               aria-label="Send message"
                className="h-12 w-12 shrink-0 bg-blue-600 hover:bg-blue-500 hover:scale-110 active:scale-95 text-white rounded-xl flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-xl shadow-blue-500/20 group-focus-within:bg-blue-500"
              >
                <Send size={20} className="mr-1 mt-1" />
