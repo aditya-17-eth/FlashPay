@@ -165,7 +165,7 @@ Dashboard ![Dashboard](assets/dashboard.png)
 
 Mobile View
 
-<img src="assets/mobile-view.jpeg" width="80%">
+<img src="assets/mobile-view.jpeg" width="40%">
 
 ---
 
