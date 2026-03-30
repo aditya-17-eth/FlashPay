@@ -61,7 +61,6 @@ contracts/**/target/
 
 # === TypeScript ===
 *.tsbuildinfo
-next-env.d.ts
 
 # === Misc ===
 *.log
