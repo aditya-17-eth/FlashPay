@@ -148,7 +148,7 @@ fn test_release_payment() {
 // ===== TEST 5: test_refund_payment =====
 #[test]
 fn test_refund_payment() {
-    let (env, contract_id, usdc, _payee, admin) = setup_env();
+    let (env, contract_id, usdc, payee, admin) = setup_env();
     let client = FlashPayEscrowClient::new(&env, &contract_id);
 
     let payer = Address::generate(&env);
@@ -198,7 +198,7 @@ fn test_duplicate_nonce() {
 // ===== TEST 7: test_unauthorized_release =====
 #[test]
 fn test_unauthorized_release() {
-    let (env, contract_id, usdc, payee, admin) = setup_env();
+    let (env, contract_id, usdc, _payee, admin) = setup_env();
     let client = FlashPayEscrowClient::new(&env, &contract_id);
 
     let payer = Address::generate(&env);
