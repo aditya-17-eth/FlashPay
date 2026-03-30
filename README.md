@@ -162,7 +162,10 @@ flashpay/
 Landing Page ![Landing Page](assets/landing-page.png)
 AI Assistant ![AI Assistant](assets/ai-assistant.png)
 Dashboard ![Dashboard](assets/dashboard.png)
-Mobile View ![Mobile View](assets/mobile-view.jpeg)
+
+Mobile View
+
+<img src="assets/mobile-view.jpeg" width="80%">
 
 ---
 
