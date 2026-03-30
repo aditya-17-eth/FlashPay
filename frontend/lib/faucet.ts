@@ -20,9 +20,16 @@ function getHorizonServer() {
   return new Horizon.Server(HORIZON_URL);
 }
 
-function hasUsdcTrustline(balances: Array<{ asset_code?: string; asset_issuer?: string }>) {
+function isUsdcBalanceLine(
+  balance: unknown,
+): balance is { balance?: string; asset_code?: string; asset_issuer?: string } {
+  return typeof balance === "object" && balance !== null && "asset_code" in balance;
+}
+
+function hasUsdcTrustline(balances: unknown[]) {
   return balances.some(
     (balance) =>
+      isUsdcBalanceLine(balance) &&
       balance.asset_code === USDC_ASSET.getCode() &&
       balance.asset_issuer === USDC_ASSET.getIssuer(),
   );
@@ -72,6 +79,7 @@ export async function getUSDCBalance(userPublicKey: string): Promise<string> {
     const account = await server.loadAccount(userPublicKey);
     const usdcBalance = account.balances.find(
       (balance) =>
+        isUsdcBalanceLine(balance) &&
         balance.asset_code === USDC_ASSET.getCode() &&
         balance.asset_issuer === USDC_ASSET.getIssuer(),
     );
