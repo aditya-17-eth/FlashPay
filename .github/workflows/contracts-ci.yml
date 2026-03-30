@@ -16,14 +16,24 @@ jobs:
     needs: build-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      STELLAR_SECRET_KEY: ${{ secrets.STELLAR_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: wasm32-unknown-unknown }
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --target wasm32-unknown-unknown
+        working-directory: contracts
       - name: Install Stellar CLI
         uses: stellar/stellar-cli@v23.0.1
-      - run: |
+      - name: Deploy to testnet
+        if: env.STELLAR_SECRET_KEY != ''
+        run: |
           stellar contract deploy \
             --wasm contracts/target/wasm32-unknown-unknown/release/flashpay_escrow.wasm \
             --source-account $STELLAR_SECRET_KEY \
             --network testnet
-        env:
-          STELLAR_SECRET_KEY: ${{ secrets.STELLAR_SECRET_KEY }}
+      - name: Skip deploy when secret is missing
+        if: env.STELLAR_SECRET_KEY == ''
+        run: echo "Skipping testnet deploy because STELLAR_SECRET_KEY is not configured."
