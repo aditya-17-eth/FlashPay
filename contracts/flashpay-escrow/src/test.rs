@@ -6,46 +6,7 @@ use soroban_sdk::{
     Address, Env, String,
 };
 
-use crate::{FlashPayEscrow, FlashPayEscrowClient, ContractError};
-
-/// Helper: create test environment with deployed contract + USDC token
-fn setup() -> (Env, Address, Address, Address, FlashPayEscrowClient<'static>) {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    // Deploy the FlashPay escrow contract
-    let contract_id = env.register(FlashPayEscrow, ());
-    let client = FlashPayEscrowClient::new(&env, &contract_id);
-
-    // Create USDC token (Stellar Asset Contract)
-    let admin = Address::generate(&env);
-    let usdc_id = env.register_stellar_asset_contract_v2(admin.clone());
-    let usdc_sac = StellarAssetClient::new(&env, &usdc_id.address());
-    let usdc_token = TokenClient::new(&env, &usdc_id.address());
-
-    // Payee (service provider)
-    let payee = Address::generate(&env);
-
-    // Initialize the contract
-    client.initialize(&usdc_id.address(), &payee);
-
-    // Return env, usdc address, payee, admin (for minting), and client
-    // We'll leak env to make lifetimes work in tests
-    let env_leaked: &'static Env = Box::leak(Box::new(env));
-
-    // Re-create everything with the leaked env
-    let contract_id2 = env_leaked.register(FlashPayEscrow, ());
-    let client2 = FlashPayEscrowClient::new(env_leaked, &contract_id2);
-
-    let admin2 = Address::generate(env_leaked);
-    let usdc_id2 = env_leaked.register_stellar_asset_contract_v2(admin2.clone());
-    let usdc_sac2 = StellarAssetClient::new(env_leaked, &usdc_id2.address());
-
-    let payee2 = Address::generate(env_leaked);
-    client2.initialize(&usdc_id2.address(), &payee2);
-
-    (env_leaked.clone(), usdc_id2.address(), payee2, admin2, client2)
-}
+use crate::{FlashPayEscrow, FlashPayEscrowClient};
 
 /// Simpler setup that doesn't leak - just uses scoped env
 fn setup_env() -> (Env, Address, Address, Address, Address) {
@@ -66,7 +27,7 @@ fn setup_env() -> (Env, Address, Address, Address, Address) {
     (env, contract_id, usdc_id.address(), payee, admin)
 }
 
-fn mint_usdc(env: &Env, usdc: &Address, admin: &Address, to: &Address, amount: i128) {
+fn mint_usdc(env: &Env, usdc: &Address, _admin: &Address, to: &Address, amount: i128) {
     let sac = StellarAssetClient::new(env, usdc);
     sac.mint(to, &amount);
 }
@@ -187,7 +148,7 @@ fn test_release_payment() {
 // ===== TEST 5: test_refund_payment =====
 #[test]
 fn test_refund_payment() {
-    let (env, contract_id, usdc, payee, admin) = setup_env();
+    let (env, contract_id, usdc, _payee, admin) = setup_env();
     let client = FlashPayEscrowClient::new(&env, &contract_id);
 
     let payer = Address::generate(&env);
