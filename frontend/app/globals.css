@@ -7,7 +7,12 @@
   --foreground: #fafafa;
 }
 
+html {
+  background: var(--background);
+}
+
 body {
+  min-height: 100vh;
   color: var(--foreground);
   background: var(--background);
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",

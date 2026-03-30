@@ -177,7 +177,6 @@ async function lockPaymentOnChain(
 
     const prepared = await server.prepareTransaction(tx);
     const signResult = await signTransaction(prepared.toXDR(), {
-      network: "TESTNET",
       networkPassphrase: NETWORK,
     });
 
@@ -195,8 +194,8 @@ async function lockPaymentOnChain(
     if (result.status === "ERROR") {
       receipt.status = "failed";
       throw new X402PaymentError(
-        typeof result.errorResultXdr === "string" && result.errorResultXdr
-          ? result.errorResultXdr
+        typeof result.errorResult === "string" && result.errorResult
+          ? result.errorResult
           : "Transaction failed",
         receipt,
       );
