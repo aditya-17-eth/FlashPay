@@ -19,9 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Stellar CLI
-        run: |
-          curl -L https://github.com/stellar/stellar-cli/releases/latest/download/stellar-cli-x86_64-unknown-linux-gnu.tar.gz | tar xz
-          sudo mv stellar /usr/local/bin/
+        uses: stellar/stellar-cli-action@v22
       - run: |
           stellar contract deploy \
             --wasm contracts/target/wasm32-unknown-unknown/release/flashpay_escrow.wasm \
