@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Stellar CLI
-        uses: stellar/stellar-cli-action@v22
+        uses: stellar/stellar-cli@v23.0.1
       - run: |
           stellar contract deploy \
             --wasm contracts/target/wasm32-unknown-unknown/release/flashpay_escrow.wasm \
