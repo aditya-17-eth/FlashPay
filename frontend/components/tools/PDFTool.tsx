@@ -98,7 +98,6 @@ async function lockPdfPayment(
 
     const prepared = await server.prepareTransaction(tx);
     const signResult = await signTransaction(prepared.toXDR(), {
-      network: "TESTNET",
       networkPassphrase: Networks.TESTNET,
     });
 
