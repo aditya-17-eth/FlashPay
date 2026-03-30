@@ -267,13 +267,15 @@ Enable Row Level Security with public read-only policies.
 
 ## 💬 User Feedback
 
-> _User feedback Excel link:_
+> _User feedback Excel link: https://docs.google.com/spreadsheets/d/e/2PACX-1vR33BekZJweTjIoPSA-3p9debUNydaUnNTfnB1EtvckJnvZZ55eVFUhCgR0FrR1kbsH9KfKB-aWWE3w/pubhtml_
 
-| User          | Feedback      | Rating     |
-| ------------- | ------------- | ---------- |
-| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
-| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
-| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
+| User | Feedback | Rating     |
+| ---- | -------- | ---------- |
+|      |          | ⭐⭐⭐⭐⭐ |
+|      |          | ⭐⭐⭐⭐⭐ |
+|      |          | ⭐⭐⭐⭐⭐ |
+|      |          | ⭐⭐⭐⭐⭐ |
+|      |          | ⭐⭐⭐⭐⭐ |
 
 ---
 
