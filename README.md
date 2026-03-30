@@ -31,7 +31,6 @@ FlashPay is a **consumer-facing dApp** where users access AI tools and pay per u
 
 The payment layer uses the **[x402 HTTP payment protocol](https://github.com/coinbase/x402)** (open-sourced by Coinbase) running on a **Soroban smart contract** for trustless USDC escrow — if the AI fails, you get an instant refund.
 
-> **Built for [SCF #42](https://communityfund.stellar.org/) — Open Track — March 2026**
 
 ---
 
@@ -230,7 +229,7 @@ See the full checklist in [docs/security.md](docs/security.md). Key highlights:
 | Frontend       | Next.js 14, TypeScript, Tailwind CSS 3 | UI + routing                           |
 | Wallet         | `@stellar/freighter-api`               | Transaction signing                    |
 | Text AI        | Groq API (Llama 3.3 70B) — free tier   | Summarise, PDF, Code, Assistant        |
-| Image AI       | Pollinations.ai — free, no key         | Image generation                       |
+| Image AI       | black-forest-labs/FLUX.1-schnell       | Image generation                       |
 | Database       | Supabase                               | Users, transactions, dashboard metrics |
 | Monitoring     | Sentry + Winston                       | Error tracking + structured logging    |
 | CI/CD          | GitHub Actions + Vercel                | Auto-test + auto-deploy                |

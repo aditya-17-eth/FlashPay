@@ -1,23 +1,50 @@
 name: Frontend CI
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      CI: true
+      NEXT_PUBLIC_STELLAR_NETWORK: testnet
+      NEXT_PUBLIC_STELLAR_RPC_URL: https://soroban-testnet.stellar.org
+      NEXT_PUBLIC_STELLAR_HORIZON_URL: https://horizon-testnet.stellar.org
+      NEXT_PUBLIC_FLASHPAY_CONTRACT_ID: ${{ secrets.CONTRACT_ID || 'CD7EBCDSXVBKR3VI25PFTBTC2YF3MHK2ZWNGXI366N7VB7R2GRVLXS7J' }}
+      NEXT_PUBLIC_USDC_CONTRACT_ID: GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+      GROQ_API_KEY: mock-groq-key
+      HUGGINGFACE_API_KEY: hf_test_token
+      PAYEE_PUBLIC_KEY: GBA3K36NHHQ7TTVDM5SCA57WMHFFCQTERWWXF2UQE4G7BY7VDX3UPDZM
+      FEE_SPONSOR_SECRET_KEY: SCKOJNXYT3ALSNC2LDPWJICNSS4VWZGXS2OA5AKXVKWI5ASWC4MPJDRV
+      NEXT_PUBLIC_SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
+      SENTRY_DSN: https://examplePublicKey@o0.ingest.sentry.io/0
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v3
-        with: { version: 9 }
+        with:
+          version: 9
+
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
       - run: pnpm install --frozen-lockfile
+
       - run: pnpm build
-        working-directory: frontend
+
       - run: pnpm test
-        working-directory: frontend
+
       - run: pnpm exec playwright install --with-deps
-        working-directory: frontend
+
       - run: pnpm exec playwright test
-        working-directory: frontend
-        env:
-          NEXT_PUBLIC_STELLAR_NETWORK: testnet
-          NEXT_PUBLIC_FLASHPAY_CONTRACT_ID: ${{ secrets.CONTRACT_ID }}
