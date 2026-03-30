@@ -35,11 +35,7 @@ The payment layer uses the **[x402 HTTP payment protocol](https://github.com/coi
 
 ## 🌐 Demo App
 
-<!-- Link to the live deployed application -->
-
-> _A live deployment of FlashPay on Stellar Testnet will be linked here so judges and users can try the pay-per-use AI tools directly._
-
-🔗 **Live app:** _coming soon_
+🔗 **Live app:** https://flash-payx402.vercel.app/
 
 ---
 
@@ -163,23 +159,16 @@ flashpay/
 
 ## 📸 Screenshots
 
-<!-- Add screenshots of the application here -->
-
-> _Screenshots coming soon — will include the landing page, each AI tool in action, the dashboard, and the Freighter payment popup._
-
-| Screen       | Preview       |
-| ------------ | ------------- |
-| Landing Page | _placeholder_ |
-| AI Assistant | _placeholder_ |
-| Dashboard    | _placeholder_ |
+Landing Page ![Landing Page](assets/landing-page.png)
+AI Assistant ![AI Assistant](assets/ai-assistant.png)
+Dashboard ![Dashboard](assets/dashboard.png)
+Mobile View ![Mobile View](assets/mobile-view.jpeg)
 
 ---
 
 ## 🎬 Demo Video
 
-<!-- Embed or link your demo video here -->
-
-> _A walkthrough video demonstrating the full x402 payment flow — from wallet connection to AI tool usage and refund — will be added here._
+> _A walkthrough video demonstrating the full x402 payment flow — from wallet connection to AI tool usage and refund._
 
 🔗 **Video link:** _coming soon_
 
@@ -275,9 +264,7 @@ Enable Row Level Security with public read-only policies.
 
 ## 💬 User Feedback
 
-<!-- Add user feedback, testimonials, or survey results here -->
-
-> _User feedback and testimonials from early testers will be showcased here._
+> _User feedback Excel link:_
 
 | User          | Feedback      | Rating     |
 | ------------- | ------------- | ---------- |

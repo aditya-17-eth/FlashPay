@@ -1,6 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
 import {
-  PieChart,
   Users,
   Activity,
   DollarSign,
@@ -9,9 +8,12 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
+  BarChart,
 } from "lucide-react";
 import { getServiceSupabase } from "@/lib/supabase";
 import { captureException } from "@/lib/sentry";
+import { FormattedTime } from "@/components/ui/FormattedTime";
+import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 
 type ToolName = "image" | "summarise" | "pdf" | "code";
 
@@ -42,26 +44,6 @@ function getToolBadgeClasses(tool: ToolName) {
   if (tool === "summarise") return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
   if (tool === "pdf") return "bg-red-500/10 text-red-400 border-red-500/20";
   return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-}
-
-function getChartData(transactions: Transaction[]) {
-  const grouped = transactions.reduce<Record<string, { date: string; count: number }>>(
-    (accumulator, transaction) => {
-      const date = new Date(transaction.created_at).toLocaleDateString();
-      if (!accumulator[date]) {
-        accumulator[date] = { date, count: 0 };
-      }
-      accumulator[date].count += 1;
-      return accumulator;
-    },
-    {},
-  );
-
-  return Object.values(grouped).reverse();
-}
-
-function getMaxChartCount(chartData: Array<{ count: number }>) {
-  return chartData.reduce((max, item) => Math.max(max, item.count), 0) || 1;
 }
 
 async function loadDashboardData(): Promise<DashboardData> {
@@ -121,8 +103,6 @@ async function loadDashboardData(): Promise<DashboardData> {
 export default async function DashboardPage() {
   try {
     const data = await loadDashboardData();
-    const chartData = getChartData(data.transactions);
-    const maxChartCount = getMaxChartCount(chartData);
     const mostUsedTool = Object.entries(data.toolBreakdown).sort((a, b) => b[1] - a[1])[0];
     const cards = [
       {
@@ -162,7 +142,7 @@ export default async function DashboardPage() {
           <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-end">
             <div>
               <h1 className="text-3xl font-bold flex items-center gap-3 mb-2 text-white">
-                <PieChart className="text-blue-500" size={28} />
+                <BarChart className="text-blue-500" size={28} />
                 Dashboard
               </h1>
               <p className="text-gray-400">Real-time statistics running over the FlashPay contract.</p>
@@ -195,37 +175,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 h-80 flex flex-col justify-between hover:border-gray-700 transition">
-              <h3 className="text-gray-400 font-medium tracking-wide text-sm flex items-center gap-2 mb-6 uppercase">
-                <span className="w-1.5 h-4 bg-blue-500 rounded-full inline-block" />
-                Recent Daily Runs
-              </h3>
-
-              <div className="flex-1 w-full min-h-0 flex items-end gap-4">
-                {chartData.length > 0 ? (
-                  chartData.map((item) => (
-                    <div key={item.date} className="flex-1 min-w-0 h-full flex flex-col justify-end items-center gap-3">
-                      <div className="w-full h-full flex items-end">
-                        <div
-                          className="w-full rounded-xl bg-blue-500/90 shadow-[0_0_24px_rgba(59,130,246,0.25)] transition-all"
-                          style={{
-                            height: `${Math.max((item.count / maxChartCount) * 100, 8)}%`,
-                          }}
-                          title={`${item.count} runs`}
-                        />
-                      </div>
-                      <div className="text-xs text-gray-500 text-center truncate w-full">
-                        {item.date}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center rounded-2xl border border-dashed border-gray-800 text-sm text-gray-500">
-                    No recent runs yet.
-                  </div>
-                )}
-              </div>
-            </div>
+            <DashboardCharts transactions={data.transactions} />
 
             <div className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden backdrop-blur-3xl shadow-2xl">
               <div className="p-6 border-b border-gray-800 flex justify-between items-center">
@@ -252,11 +202,7 @@ export default async function DashboardPage() {
                     {data.transactions.map((tx) => (
                       <tr key={tx.id} className="hover:bg-gray-800/20 transition-colors group">
                         <td className="px-6 py-4 text-sm text-gray-400 font-mono">
-                          {new Date(tx.created_at).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
+                          <FormattedTime date={tx.created_at} type="time" />
                         </td>
                         <td className="px-6 py-4">
                           <span
@@ -320,7 +266,7 @@ export default async function DashboardPage() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3 mb-2 text-white">
-            <PieChart className="text-blue-500" size={28} />
+            <BarChart className="text-blue-500" size={28} />
             Dashboard
           </h1>
           <p className="text-gray-400">Real-time statistics running over the FlashPay contract.</p>
