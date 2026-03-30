@@ -71,7 +71,6 @@ export function USDCFaucet({ userPublicKey, onSuccess }: USDCFaucetProps) {
 
       setStatus("signing");
       const signResult = await signTransaction(xdr, {
-        network: "TESTNET",
         networkPassphrase: Networks.TESTNET,
       });
 
