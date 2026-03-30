@@ -31,18 +31,27 @@ FlashPay is a **consumer-facing dApp** where users access AI tools and pay per u
 
 The payment layer uses the **[x402 HTTP payment protocol](https://github.com/coinbase/x402)** (open-sourced by Coinbase) running on a **Soroban smart contract** for trustless USDC escrow — if the AI fails, you get an instant refund.
 
+---
+
+## 🌐 Demo App
+
+<!-- Link to the live deployed application -->
+
+> _A live deployment of FlashPay on Stellar Testnet will be linked here so judges and users can try the pay-per-use AI tools directly._
+
+🔗 **Live app:** _coming soon_
 
 ---
 
 ## 🛠️ The Five Tabs
 
-| Tab                | Tool               | Price      | AI Backend                                                | What You Provide       |
-| ------------------ | ------------------ | ---------- | --------------------------------------------------------- | ---------------------- |
-| `/tools/image`     | 🎨 Image Generator | 0.005 USDC | [Pollinations.ai](https://pollinations.ai) (free, no key) | Text prompt            |
-| `/tools/summarise` | 📝 Text Summariser | 0.001 USDC | [Groq](https://groq.com) — Llama 3.3 70B                  | Pasted text + mode     |
-| `/tools/pdf`       | 📄 PDF Analyser    | 0.002 USDC | Groq — Llama 3.3 70B                                      | PDF upload + question  |
-| `/tools/code`      | 💻 Code Generator  | 0.003 USDC | Groq — Llama 3.3 70B                                      | Description + language |
-| `/assistant`       | 🤖 AI Assistant    | **Free**   | Groq — Llama 3.3 70B                                      | Chat message           |
+| Tab                | Tool               | Price      | AI Backend                               | What You Provide       |
+| ------------------ | ------------------ | ---------- | ---------------------------------------- | ---------------------- |
+| `/tools/image`     | 🎨 Image Generator | 0.005 USDC | black-forest-labs/FLUX.1-schnell         | Text prompt            |
+| `/tools/summarise` | 📝 Text Summariser | 0.001 USDC | [Groq](https://groq.com) — Llama 3.3 70B | Pasted text + mode     |
+| `/tools/pdf`       | 📄 PDF Analyser    | 0.002 USDC | Groq — Llama 3.3 70B                     | PDF upload + question  |
+| `/tools/code`      | 💻 Code Generator  | 0.003 USDC | Groq — Llama 3.3 70B                     | Description + language |
+| `/assistant`       | 🤖 AI Assistant    | **Free**   | Groq — Llama 3.3 70B                     | Chat message           |
 
 The **AI Assistant** is a free chat that helps users decide which tool to use — it suggests tools via clickable cards but **never fires payments autonomously**.
 
@@ -71,8 +80,8 @@ The **AI Assistant** is a free chat that helps users decide which tool to use �
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    User (Browser)                        │
-│  Freighter Wallet  ←→  Next.js 14 Frontend (Vercel)    │
+│                    User (Browser)                       │
+│  Freighter Wallet  ←→  Next.js 14 Frontend (Vercel)     │
 └────────────┬────────────────────────┬───────────────────┘
              │ x402 (HTTP 402)        │ Wallet Sign
              ▼                        ▼
@@ -88,10 +97,10 @@ The **AI Assistant** is a free chat that helps users decide which tool to use �
          │
     ┌────┴─────┐    ┌──────────┐
     │  Groq    │    │ Supabase │
-    │ (LLM)   │    │ (Metrics)│
+    │ (LLM)    │    │ (Metrics)│
     └──────────┘    └──────────┘
     ┌──────────┐
-    │Pollinat. │
+    │FLUX.1    │
     │ (Images) │
     └──────────┘
 ```
@@ -135,6 +144,60 @@ flashpay/
 
 ---
 
+## 🧰 Tech Stack
+
+| Layer          | Technology                             | Purpose                                |
+| -------------- | -------------------------------------- | -------------------------------------- |
+| Smart Contract | Rust + `soroban-sdk 23.4.1`            | Trustless USDC escrow                  |
+| Frontend       | Next.js 14, TypeScript, Tailwind CSS 3 | UI + routing                           |
+| Wallet         | `@stellar/freighter-api`               | Transaction signing                    |
+| Text AI        | Groq API (Llama 3.3 70B) — free tier   | Summarise, PDF, Code, Assistant        |
+| Image AI       | black-forest-labs/FLUX.1-schnell       | Image generation                       |
+| Database       | Supabase                               | Users, transactions, dashboard metrics |
+| Monitoring     | Sentry + Winston                       | Error tracking + structured logging    |
+| CI/CD          | GitHub Actions + Vercel                | Auto-test + auto-deploy                |
+| Data Fetching  | React Query (TanStack v5)              | Polling, caching                       |
+| Charts         | Recharts                               | Dashboard visualizations               |
+
+---
+
+## 📸 Screenshots
+
+<!-- Add screenshots of the application here -->
+
+> _Screenshots coming soon — will include the landing page, each AI tool in action, the dashboard, and the Freighter payment popup._
+
+| Screen       | Preview       |
+| ------------ | ------------- |
+| Landing Page | _placeholder_ |
+| AI Assistant | _placeholder_ |
+| Dashboard    | _placeholder_ |
+
+---
+
+## 🎬 Demo Video
+
+<!-- Embed or link your demo video here -->
+
+> _A walkthrough video demonstrating the full x402 payment flow — from wallet connection to AI tool usage and refund — will be added here._
+
+🔗 **Video link:** _coming soon_
+
+---
+
+## 🔄 CI/CD Pipelines
+
+The project runs two independent GitHub Actions workflows to ensure quality across the entire stack:
+
+| Workflow                              | Trigger       | What it validates                                                                                                                                                                       |
+| ------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend CI** (`frontend-ci.yml`)   | Any push / PR | Installs Node.js 20 + pnpm 9, injects mock environment variables, runs `pnpm build` for production bundle, and executes `pnpm test`                                                     |
+| **Contracts CI** (`contracts-ci.yml`) | Any push / PR | Installs Rust + `wasm32-unknown-unknown` target, builds each Soroban contract to WASM, runs `cargo test`, and auto-deploys to Stellar Testnet on `main` (when secret key is configured) |
+
+Both pipelines must pass before a pull request can be merged.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -150,8 +213,8 @@ flashpay/
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/YOUR_ORG/flashpay.git
-cd flashpay
+git clone https://github.com/aditya-17-eth/FlashPay.git
+cd FlashPay
 ```
 
 ### 2. Smart Contract
@@ -210,6 +273,20 @@ Enable Row Level Security with public read-only policies.
 
 ---
 
+## 💬 User Feedback
+
+<!-- Add user feedback, testimonials, or survey results here -->
+
+> _User feedback and testimonials from early testers will be showcased here._
+
+| User          | Feedback      | Rating     |
+| ------------- | ------------- | ---------- |
+| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
+| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
+| _placeholder_ | _placeholder_ | ⭐⭐⭐⭐⭐ |
+
+---
+
 ## 🔒 Security
 
 See the full checklist in [docs/security.md](docs/security.md). Key highlights:
@@ -218,23 +295,6 @@ See the full checklist in [docs/security.md](docs/security.md). Key highlights:
 - **Backend:** Server-side price enforcement, Zod validation, rate limiting (20 req/min), PDFs never written to disk
 - **Frontend:** Freighter-only key management, Sentry strips wallet addresses, CSP headers
 - **Secrets:** All API keys server-side only; `GROQ_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `FEE_SPONSOR_SECRET_KEY` never exposed in client bundle
-
----
-
-## 🧰 Tech Stack
-
-| Layer          | Technology                             | Purpose                                |
-| -------------- | -------------------------------------- | -------------------------------------- |
-| Smart Contract | Rust + `soroban-sdk 23.4.1`            | Trustless USDC escrow                  |
-| Frontend       | Next.js 14, TypeScript, Tailwind CSS 3 | UI + routing                           |
-| Wallet         | `@stellar/freighter-api`               | Transaction signing                    |
-| Text AI        | Groq API (Llama 3.3 70B) — free tier   | Summarise, PDF, Code, Assistant        |
-| Image AI       | black-forest-labs/FLUX.1-schnell       | Image generation                       |
-| Database       | Supabase                               | Users, transactions, dashboard metrics |
-| Monitoring     | Sentry + Winston                       | Error tracking + structured logging    |
-| CI/CD          | GitHub Actions + Vercel                | Auto-test + auto-deploy                |
-| Data Fetching  | React Query (TanStack v5)              | Polling, caching                       |
-| Charts         | Recharts                               | Dashboard visualizations               |
 
 ---
 
