@@ -269,13 +269,14 @@ Enable Row Level Security with public read-only policies.
 
 > _User feedback Excel link: https://docs.google.com/spreadsheets/d/e/2PACX-1vR33BekZJweTjIoPSA-3p9debUNydaUnNTfnB1EtvckJnvZZ55eVFUhCgR0FrR1kbsH9KfKB-aWWE3w/pubhtml_
 
-| User | Feedback | Rating     |
-| ---- | -------- | ---------- |
-|      |          | ⭐⭐⭐⭐⭐ |
-|      |          | ⭐⭐⭐⭐⭐ |
-|      |          | ⭐⭐⭐⭐⭐ |
-|      |          | ⭐⭐⭐⭐⭐ |
-|      |          | ⭐⭐⭐⭐⭐ |
+| User Name     | User Wallet Address                                      | User Email                 | User Feedback                                           | Commit ID                                |
+| ------------- | -------------------------------------------------------- | -------------------------- | ------------------------------------------------------- | ---------------------------------------- |
+| Aiman Momin   | GAIXT2BHVEVSXQN7ERT4SBZFKJ35FKJR2LUADLFVHJI7MI7D6WJ42NDE | aimanmomin999@gmail.com    | A tiny free quota or credits could make adoption easier | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| KARTIK BOTRE  | GBHA2H7RRFAE5QINGF3BLSZGLPEBTM5EW7A547PJ4E26L4Z7MMLAOJEE | kartikbotre2410@gmail.com  | Image generator Feature is absolutely accurate          | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| Spandan Tulse | GDNK4HM6E2EUC7SSXQ3C5JVQYWAB5IZ4GNMHJ5XRBKD4DZKBJN34D3V5 | spandy205@gmail.com        | Summariser Feature is very useful                       | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| neel pote     | GBKLRBXJFBC7SFNZ6PWM5WRHKEOD3PONHYE4UY2N6NJEF3BNS2KU65SV | neelpote44@gmail.com       | option to genrate multiple images at once               | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| Sarthak Dhere | GCRYPAQB3TFLQE727TA3R723QIEPTP5KCMP7OMH4HVXNLCEUKPD4AZJP | sarthakdhere0217@gmail.com | no there where no bugs                                  | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| Viru Shelke   | GD5II5CFYRMH6ZNL33K3BT74T4WMXRG6EMGPUIEUAXRKUKVQ3A5ZTAPB | indravardhan10@gmail.com   | Could improve the landing page insights                 | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
 
 ---
 
