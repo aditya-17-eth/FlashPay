@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">⚡ FlashPay</h1>
+  <h1 align="center">FlashPay</h1>
   <p align="center"><strong>Pay-Per-Use AI Toolkit on Stellar</strong></p>
   <p align="center">
     AI tools for everyone — no subscription, no account, just Freighter wallet<br/>
