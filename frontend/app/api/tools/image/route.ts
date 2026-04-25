@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest } from "@/lib/stellar-server";
+import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest, handleSessionPayment } from "@/lib/stellar-server";
 import { captureException } from "@/lib/sentry";
 
 const IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell";
@@ -64,6 +64,27 @@ export async function POST(req: Request) {
     }
 
     const { prompt } = result.data;
+
+    // Account Abstraction: session-based payment (no 402 dance)
+    const sessionOwner = req.headers.get("x-session-owner");
+    if (sessionOwner) {
+      const nonce = await handleSessionPayment(sessionOwner, "image");
+      try {
+        const sanitizedPrompt = prompt.replace(/<[^>]*>?/gm, "").trim();
+        const seed = nonce % 2147483647;
+        const imageUrl = await generateImageWithHuggingFace(sanitizedPrompt, seed);
+        await releasePayment(nonce);
+        return Response.json({ imageUrl, nonce, model: IMAGE_MODEL });
+      } catch (error) {
+        await refundPayment(nonce);
+        captureException(error);
+        return Response.json(
+          { error: error instanceof Error ? error.message : "Image generation failed, session payment refunded.", sessionExpired: false },
+          { status: 500 },
+        );
+      }
+    }
+
     const paymentNonce = req.headers.get("x-payment-nonce");
     const payerAddress = req.headers.get("x-payer-address");
 

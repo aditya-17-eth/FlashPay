@@ -274,3 +274,97 @@ fn test_get_users() {
     let stats = client.get_stats();
     assert_eq!(stats.total_users, 3);
 }
+
+// ===== TEST 10: test_create_session =====
+#[test]
+fn test_create_session() {
+    let (env, contract_id, usdc, _payee, admin) = setup_env();
+    let client = FlashPayEscrowClient::new(&env, &contract_id);
+
+    let owner = Address::generate(&env);
+    mint_usdc(&env, &usdc, &admin, &owner, 10_000_000);
+
+    let budget: i128 = 500_000;
+    let max_per_tx: i128 = 50_000;
+
+    let session = client.create_session(&owner, &budget, &max_per_tx, &3600_u64);
+    assert_eq!(session.budget_total, budget);
+    assert_eq!(session.budget_remaining, budget);
+    assert_eq!(session.max_per_tx, max_per_tx);
+    assert_eq!(session.active, true);
+
+    let token = TokenClient::new(&env, &usdc);
+    assert_eq!(token.balance(&contract_id), budget);
+
+    let read = client.get_session(&owner);
+    assert_eq!(read.budget_remaining, budget);
+}
+
+// ===== TEST 11: test_lock_payment_session =====
+#[test]
+fn test_lock_payment_session() {
+    let (env, contract_id, usdc, payee, admin) = setup_env();
+    let client = FlashPayEscrowClient::new(&env, &contract_id);
+
+    let owner = Address::generate(&env);
+    mint_usdc(&env, &usdc, &admin, &owner, 10_000_000);
+
+    client.create_session(&owner, &500_000_i128, &50_000_i128, &3600_u64);
+
+    let tool = String::from_str(&env, "image");
+    let record = client.lock_payment_session(&owner, &50_000_i128, &9001_u64, &tool);
+
+    assert_eq!(record.payer, owner);
+    assert_eq!(record.payee, payee);
+    assert_eq!(record.amount, 50_000);
+    assert_eq!(record.released, false);
+
+    let session = client.get_session(&owner);
+    assert_eq!(session.budget_remaining, 450_000);
+
+    let stats = client.get_stats();
+    assert_eq!(stats.total_payments, 1);
+    assert_eq!(stats.image_count, 1);
+}
+
+// ===== TEST 12: test_close_session_refund =====
+#[test]
+fn test_close_session_refund() {
+    let (env, contract_id, usdc, _payee, admin) = setup_env();
+    let client = FlashPayEscrowClient::new(&env, &contract_id);
+
+    let owner = Address::generate(&env);
+    mint_usdc(&env, &usdc, &admin, &owner, 10_000_000);
+
+    client.create_session(&owner, &500_000_i128, &50_000_i128, &3600_u64);
+
+    let tool = String::from_str(&env, "image");
+    client.lock_payment_session(&owner, &50_000_i128, &9101_u64, &tool);
+
+    let token = TokenClient::new(&env, &usdc);
+    let balance_before = token.balance(&owner);
+
+    let refunded = client.close_session(&owner);
+    assert_eq!(refunded, 450_000);
+
+    let balance_after = token.balance(&owner);
+    assert_eq!(balance_after - balance_before, 450_000);
+}
+
+// ===== TEST 13: test_session_budget_exceeded =====
+#[test]
+fn test_session_budget_exceeded() {
+    let (env, contract_id, usdc, _payee, admin) = setup_env();
+    let client = FlashPayEscrowClient::new(&env, &contract_id);
+
+    let owner = Address::generate(&env);
+    mint_usdc(&env, &usdc, &admin, &owner, 10_000_000);
+
+    client.create_session(&owner, &50_000_i128, &50_000_i128, &3600_u64);
+
+    let tool = String::from_str(&env, "image");
+    client.lock_payment_session(&owner, &50_000_i128, &9201_u64, &tool);
+
+    let result = client.try_lock_payment_session(&owner, &50_000_i128, &9202_u64, &tool);
+    assert!(result.is_err());
+}

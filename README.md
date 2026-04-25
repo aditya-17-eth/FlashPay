@@ -265,6 +265,27 @@ Enable Row Level Security with public read-only policies.
 
 ---
 
+## ⚡ Advanced Feature: Account Abstraction (Smart Sessions)
+
+FlashPay implements account abstraction by facilitating Session-based pre-authorization via on-chain state, solving the primary UX friction of frequent wallet popups for micropayments.
+
+### Flow:
+1. **Allocate:** User signs a single transaction via Freighter to deposit a USDC budget into the escrow contract, defining expiration and max allowance per transaction.
+2. **Authorize via backend:** The user receives a session key mapped to their wallet.
+3. **Execute:** Subsequent AI tool usages deduct from the assigned session budget *without any Freighter wallet popups*. The backend facilitates usage logging directly with Supabase via the pre-approved escrow allowance.
+
+### Benefits:
+- **Zero-Friction AI:** Fast, automated generation bypassing 402 waiting states.
+- **Micro UI state:** Dedicated 'FlashPay Session Active' dashboard headers notify users of active time limits.
+- **Fully local:** Graceful degradation on session expiration returns the user back to standard per-use prompts.
+
+### Links:
+- **Contract logic:** `contracts/flashpay-escrow/src/lib.rs` (Reference `create_session` and `lock_payment_session`)
+- **Frontend library:** `frontend/lib/session.ts`
+- **UI:** `frontend/components/wallet/SessionManager.tsx`
+
+---
+
 ## 💬 User Feedback
 
 > _User feedback Excel link: https://docs.google.com/spreadsheets/d/e/2PACX-1vR33BekZJweTjIoPSA-3p9debUNydaUnNTfnB1EtvckJnvZZ55eVFUhCgR0FrR1kbsH9KfKB-aWWE3w/pubhtml_

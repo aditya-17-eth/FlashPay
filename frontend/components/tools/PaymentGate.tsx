@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { isConnected } from "@stellar/freighter-api";
 import { PaymentReceipt, PaymentStatus, X402PaymentError } from "@/lib/stellar";
-import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle, Zap } from "lucide-react";
+import { getActiveSession } from "@/lib/session";
 
 interface PaymentGateProps {
   price: string;
@@ -30,6 +31,13 @@ export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGa
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [lastReceipt, setLastReceipt] = useState<PaymentReceipt | null>(null);
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    setHasSession(!!getActiveSession());
+    const interval = setInterval(() => setHasSession(!!getActiveSession()), 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function handleClick() {
     if (!(await isConnected())) {
@@ -66,9 +74,16 @@ export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGa
              <span className="font-mono text-blue-400 font-bold">{price}</span>
              <span className="text-gray-400 text-sm ml-1">USDC</span>
           </div>
-          <div className="text-sm text-gray-400">
-             Per execution
-          </div>
+          {hasSession ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+              <Zap size={12} className="text-green-400" />
+              <span className="text-xs text-green-400 font-mono font-bold">Session</span>
+            </div>
+          ) : (
+            <div className="text-sm text-gray-400">
+               Per execution
+            </div>
+          )}
         </div>
         
         <button
@@ -86,10 +101,10 @@ export function PaymentGate({ price, buttonText, onAction, disabled }: PaymentGa
           {isWorking ? (
              <>
                <Loader2 size={18} className="animate-spin" />
-               {status === "approving" && "Approve in Freighter..."}
-               {status === "confirming" && "Confirming on chain..."}
+               {status === "approving" && !hasSession && "Approve in Freighter..."}
+               {status === "confirming" && !hasSession && "Confirming on chain..."}
                {status === "delivering" && "Generating..."}
-               {status === "requesting" && "Requesting..."}
+               {status === "requesting" && (hasSession ? "Using session credit..." : "Requesting...")}
              </>
           ) : status === "done" ? (
              <>

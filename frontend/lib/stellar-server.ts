@@ -119,3 +119,40 @@ export function generatePaymentRequest(tool: ToolName) {
     { status: 402 }
   );
 }
+
+/**
+ * Handle a session-based payment: generate a nonce and record
+ * the transaction in Supabase. The on-chain funds were pre-deposited
+ * via create_session; this function only tracks usage.
+ */
+export async function handleSessionPayment(
+  sessionOwner: string,
+  tool: ToolName,
+): Promise<number> {
+  const nonce = Date.now();
+
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("mock")
+  ) {
+    const supabase = getServiceSupabase();
+    try {
+      await supabase.from("users").upsert(
+        { wallet: sessionOwner, last_seen: new Date().toISOString() },
+        { onConflict: "wallet" }
+      );
+
+      await supabase.from("transactions").insert({
+        nonce,
+        tool,
+        payer: sessionOwner,
+        amount_usdc: TOOL_PRICES[tool],
+        status: "pending",
+      });
+    } catch (e) {
+      console.warn("Session DB indexing skipped:", e);
+    }
+  }
+
+  return nonce;
+}

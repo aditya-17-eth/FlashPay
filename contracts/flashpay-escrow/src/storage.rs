@@ -1,6 +1,6 @@
 use soroban_sdk::{Address, Env, Symbol, symbol_short, Vec};
 
-use crate::{PaymentRecord, Stats, StorageKey};
+use crate::{PaymentRecord, Session, Stats, StorageKey};
 
 const USDC_KEY: Symbol = symbol_short!("USDC");
 const PAYEE_KEY: Symbol = symbol_short!("PAYEE");
@@ -118,4 +118,24 @@ pub fn mark_nonce_used(env: &Env, nonce: u64) {
 pub fn is_nonce_used(env: &Env, nonce: u64) -> bool {
     let key = StorageKey::NonceUsed(nonce);
     env.storage().temporary().has(&key)
+}
+
+// --- Sessions ---
+
+pub fn set_session(env: &Env, owner: &Address, session: &Session) {
+    let key = StorageKey::Session(owner.clone());
+    env.storage().persistent().set(&key, session);
+    env.storage().persistent().extend_ttl(&key, TTL_THRESHOLD, TTL_EXTEND);
+}
+
+pub fn get_session(env: &Env, owner: &Address) -> Option<Session> {
+    let key = StorageKey::Session(owner.clone());
+    env.storage().persistent().get(&key)
+}
+
+pub fn remove_session(env: &Env, owner: &Address) {
+    let key = StorageKey::Session(owner.clone());
+    if env.storage().persistent().has(&key) {
+        env.storage().persistent().remove(&key);
+    }
 }

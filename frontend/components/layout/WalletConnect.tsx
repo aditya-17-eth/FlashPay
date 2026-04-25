@@ -10,6 +10,7 @@ import {
 import { Wallet } from "lucide-react";
 import { getUSDCBalance } from "@/lib/faucet";
 import { USDCFaucet } from "@/components/wallet/USDCFaucet";
+import { SessionManager } from "@/components/wallet/SessionManager";
 
 function withTimeout<T>(promise: Promise<T>, ms: number = 3000): Promise<T> {
   return Promise.race([
@@ -143,28 +144,34 @@ export function WalletConnect() {
   }
 
   return (
-    <div className="relative group">
-      <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer hover:border-gray-700 transition">
-        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-        <span className="font-mono text-sm text-gray-300">
-          {wallet.substring(0, 4)}...{wallet.substring(52)}
-        </span>
-      </div>
-      <button
-        onClick={disconnect}
-        className="absolute top-full right-0 mt-1 w-full px-3 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-700 transition opacity-0 group-hover:opacity-100"
-      >
-        Disconnect
-      </button>
+    <div className="flex items-center gap-3 relative">
+      <SessionManager walletAddress={wallet} />
 
-      {Number(usdcBalance) <= 0.01 ? (
-        <USDCFaucet
-          userPublicKey={wallet}
-          onSuccess={() => {
-            refreshUSDCBalance(wallet).catch(() => {});
-          }}
-        />
-      ) : null}
+      <div className="relative group">
+        <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg cursor-pointer hover:border-gray-700 transition">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="font-mono text-sm text-gray-300">
+            {wallet.substring(0, 4)}...{wallet.substring(52)}
+          </span>
+        </div>
+        <button
+          onClick={disconnect}
+          className="absolute top-full right-0 mt-1 w-full px-3 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-xs text-gray-400 hover:text-white hover:border-gray-700 transition opacity-0 group-hover:opacity-100 z-50 shadow-lg"
+        >
+          Disconnect
+        </button>
+
+        {Number(usdcBalance) <= 0.01 ? (
+          <div className="absolute top-full right-0 mt-10 w-full z-40 opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
+            <USDCFaucet
+              userPublicKey={wallet}
+              onSuccess={() => {
+                refreshUSDCBalance(wallet).catch(() => {});
+              }}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

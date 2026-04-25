@@ -187,7 +187,7 @@ export default async function DashboardPage() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto relative">
+              <div className="overflow-x-auto overflow-y-auto max-h-[500px] relative scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
                 <table className="w-full text-left">
                   <thead className="text-xs text-gray-500 uppercase bg-black/40 border-b border-gray-800/50 sticky top-0 backdrop-blur-md">
                     <tr>

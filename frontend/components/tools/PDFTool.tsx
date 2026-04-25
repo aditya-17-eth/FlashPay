@@ -6,6 +6,7 @@ import { TOOL_PRICES } from "@/lib/prices";
 import { PaymentGate } from "./PaymentGate";
 import { PaymentReceipt, PaymentStatus, X402PaymentError } from "@/lib/stellar";
 import { FileUp, File, Copy, X } from "lucide-react";
+import { getActiveSession, deductSessionBudget, clearSession } from "@/lib/session";
 import {
   SorobanRpc,
   TransactionBuilder,
@@ -168,16 +169,34 @@ export function PDFTool() {
         formData.append("question", question.trim());
       }
 
+      // Account Abstraction: session-based payment (skip Freighter)
+      const session = getActiveSession();
+      const headers: Record<string, string> = {};
+      if (session) {
+        headers["x-session-owner"] = session.ownerAddress;
+      }
+
       const initRes = await fetch("/api/tools/pdf", {
         method: "POST",
+        headers,
         body: formData,
       });
 
       if (initRes.status !== 402) {
         const initData = await initRes.json();
         if (!initRes.ok || initData.error) {
+          if (initData.sessionExpired) {
+            clearSession();
+          }
           throw new Error(initData.error || "Failed to analyse PDF");
         }
+        
+        if (session) {
+          import("@/lib/prices").then(({ TOOL_PRICES }) => {
+            deductSessionBudget(TOOL_PRICES.pdf);
+          });
+        }
+        
         setResult(initData.result);
         return;
       }

@@ -20,3 +20,17 @@ pub fn emit_payment_refunded(env: &Env, payer: &Address, nonce: u64, amount: i12
         (nonce, amount),
     );
 }
+
+pub fn emit_session_created(env: &Env, owner: &Address, budget: i128, expires_at: u64) {
+    env.events().publish(
+        (symbol_short!("ses_new"), owner.clone()),
+        (budget, expires_at),
+    );
+}
+
+pub fn emit_session_closed(env: &Env, owner: &Address, refunded: i128) {
+    env.events().publish(
+        (symbol_short!("ses_end"), owner.clone()),
+        refunded,
+    );
+}

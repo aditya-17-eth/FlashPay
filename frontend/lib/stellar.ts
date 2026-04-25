@@ -7,6 +7,8 @@ import {
   Address,
 } from "@stellar/stellar-sdk";
 import { signTransaction, requestAccess } from "@stellar/freighter-api";
+import { getActiveSession, deductSessionBudget, clearSession, type SessionState } from "./session";
+import { TOOL_PRICES, type ToolName } from "./prices";
 
 const RPC_URL = process.env.NEXT_PUBLIC_STELLAR_RPC_URL!;
 const CONTRACT_ID = process.env.NEXT_PUBLIC_FLASHPAY_CONTRACT_ID!;
@@ -98,6 +100,13 @@ export async function x402Fetch(
   body: object,
   onStatus?: (status: PaymentStatus) => void,
 ): Promise<X402Response> {
+  // Account Abstraction: if a smart session is active, bypass x402/Freighter
+  const session = getActiveSession();
+  if (session) {
+    return x402FetchWithSession(url, body, session, onStatus);
+  }
+
+  // Normal x402 flow
   onStatus?.("requesting");
   const res = await fetch(url, {
     method: "POST",
@@ -137,6 +146,47 @@ export async function x402Fetch(
   const responseWithReceipt = finalResponse as X402Response;
   responseWithReceipt.x402Payment = receipt;
   return responseWithReceipt;
+}
+
+/**
+ * Session-based fetch — bypasses the 402 dance entirely.
+ * The backend handles payment from the pre-deposited session budget.
+ */
+async function x402FetchWithSession(
+  url: string,
+  body: object,
+  session: SessionState,
+  onStatus?: (status: PaymentStatus) => void,
+): Promise<X402Response> {
+  onStatus?.("delivering");
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-session-owner": session.ownerAddress,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    if (data.sessionExpired) {
+      clearSession();
+    }
+    throw new X402PaymentError(data.error || "Session payment failed");
+  }
+
+  // Deduct from local budget tracking
+  const toolMatch = url.match(/\/api\/tools\/(\w+)/);
+  if (toolMatch) {
+    const toolName = toolMatch[1] as ToolName;
+    if (TOOL_PRICES[toolName]) {
+      deductSessionBudget(TOOL_PRICES[toolName]);
+    }
+  }
+
+  return res as X402Response;
 }
 
 async function lockPaymentOnChain(
@@ -228,4 +278,100 @@ async function waitForConfirmation(nonce: number): Promise<void> {
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+}
+
+// ===== Account Abstraction: Session Management =====
+
+/**
+ * Create a Smart Session on-chain — deposits USDC budget into the escrow
+ * contract. This is the ONLY Freighter popup required; all subsequent
+ * tool uses draw from this budget without wallet interaction.
+ */
+export async function createSessionOnChain(
+  budget: number,
+  maxPerTx: number,
+  durationSecs: number,
+): Promise<void> {
+  const publicKey = await getWalletAddress();
+  const server = new SorobanRpc.Server(RPC_URL);
+  const account = await server.getAccount(publicKey);
+  const contract = new Contract(CONTRACT_ID);
+
+  const tx = new TransactionBuilder(account, {
+    fee: "200",
+    networkPassphrase: NETWORK,
+  })
+    .addOperation(
+      contract.call(
+        "create_session",
+        new Address(publicKey).toScVal(),
+        nativeToScVal(Math.round(budget * 1e7), { type: "i128" }),
+        nativeToScVal(Math.round(maxPerTx * 1e7), { type: "i128" }),
+        nativeToScVal(durationSecs, { type: "u64" }),
+      ),
+    )
+    .setTimeout(30)
+    .build();
+
+  const prepared = await server.prepareTransaction(tx);
+  const signResult = await signTransaction(prepared.toXDR(), {
+    networkPassphrase: NETWORK,
+  });
+
+  if (signResult.error) {
+    throw new X402PaymentError(signResult.error);
+  }
+
+  const result = await server.sendTransaction(
+    TransactionBuilder.fromXDR(signResult.signedTxXdr, NETWORK),
+  );
+
+  if (result.status === "ERROR") {
+    throw new X402PaymentError("Session creation failed on-chain");
+  }
+
+  // Wait for ledger confirmation
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+}
+
+/**
+ * Close a Smart Session — refunds remaining budget on-chain via Freighter.
+ */
+export async function closeSessionOnChain(): Promise<void> {
+  const publicKey = await getWalletAddress();
+  const server = new SorobanRpc.Server(RPC_URL);
+  const account = await server.getAccount(publicKey);
+  const contract = new Contract(CONTRACT_ID);
+
+  const tx = new TransactionBuilder(account, {
+    fee: "200",
+    networkPassphrase: NETWORK,
+  })
+    .addOperation(
+      contract.call(
+        "close_session",
+        new Address(publicKey).toScVal(),
+      ),
+    )
+    .setTimeout(30)
+    .build();
+
+  const prepared = await server.prepareTransaction(tx);
+  const signResult = await signTransaction(prepared.toXDR(), {
+    networkPassphrase: NETWORK,
+  });
+
+  if (signResult.error) {
+    throw new X402PaymentError(signResult.error);
+  }
+
+  const result = await server.sendTransaction(
+    TransactionBuilder.fromXDR(signResult.signedTxXdr, NETWORK),
+  );
+
+  if (result.status === "ERROR") {
+    throw new X402PaymentError("Session close failed on-chain");
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 4000));
 }

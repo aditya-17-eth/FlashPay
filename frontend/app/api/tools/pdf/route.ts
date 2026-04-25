@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { groq } from "@/lib/groq";
-import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest } from "@/lib/stellar-server";
+import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest, handleSessionPayment } from "@/lib/stellar-server";
 import { captureException } from "@/lib/sentry";
 import pdfParse from "pdf-parse";
 
@@ -22,6 +22,43 @@ export async function POST(req: Request) {
     const QuestionSchema = z.string().max(500).optional();
     const parsedQ = QuestionSchema.safeParse(question);
     if (!parsedQ.success) return Response.json({ error: "Invalid question" }, { status: 400 });
+
+    // Account Abstraction: session-based payment
+    const sessionOwner = req.headers.get("x-session-owner");
+    if (sessionOwner) {
+      const nonce = await handleSessionPayment(sessionOwner, "pdf");
+      let pdfText = "";
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const parsed = await pdfParse(buffer);
+        pdfText = parsed.text.slice(0, 8000);
+      } catch (err) {
+        captureException(err);
+        await refundPayment(nonce);
+        return Response.json({ error: "Failed to parse PDF" }, { status: 400 });
+      }
+      const systemPrompt = parsedQ.data
+        ? `Answer the following question about the document concisely: "${parsedQ.data}"`
+        : "Provide a comprehensive summary of this document.";
+      try {
+        const completion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: pdfText },
+          ],
+          max_tokens: 1024,
+        });
+        const extracted = completion.choices[0]?.message?.content || "";
+        await releasePayment(nonce);
+        return Response.json({ result: extracted, nonce });
+      } catch (e) {
+        await refundPayment(nonce);
+        captureException(e);
+        return Response.json({ error: "AI API Failed, session payment refunded.", sessionExpired: false }, { status: 500 });
+      }
+    }
 
     const paymentNonce = req.headers.get("x-payment-nonce");
     const payerAddress = req.headers.get("x-payer-address");

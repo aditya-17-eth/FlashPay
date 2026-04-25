@@ -13,4 +13,8 @@ pub enum ContractError {
     AlreadyReleased = 7,
     AlreadyRefunded = 8,
     InvalidTool = 9,
+    SessionNotFound = 10,
+    SessionExpired = 11,
+    SessionBudgetExceeded = 12,
+    SessionInactive = 13,
 }

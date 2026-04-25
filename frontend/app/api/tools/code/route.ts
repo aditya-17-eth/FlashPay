@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TOOL_PRICES } from "@/lib/prices";
 import { groq } from "@/lib/groq";
-import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest } from "@/lib/stellar-server";
+import { verifyPayment, releasePayment, refundPayment, generatePaymentRequest, handleSessionPayment } from "@/lib/stellar-server";
 import { captureException } from "@/lib/sentry";
 
 const CodeSchema = z.object({
@@ -16,6 +16,36 @@ export async function POST(req: Request) {
     if (!result.success) return Response.json({ error: "Invalid input" }, { status: 400 });
     
     const { description, language } = result.data;
+
+    // Account Abstraction: session-based payment
+    const sessionOwner = req.headers.get("x-session-owner");
+    if (sessionOwner) {
+      const nonce = await handleSessionPayment(sessionOwner, "code");
+      const systemPrompt = `You are an expert ${language} developer.\nGenerate clean, well-commented, production-ready ${language} code.\nReturn ONLY the code block with no explanation before or after.\nAdd brief inline comments for clarity.`;
+      try {
+        let extracted = "";
+        if (process.env.GROQ_API_KEY === "mock-groq-key" || !process.env.GROQ_API_KEY) {
+          extracted = `// [Mock ${language} Result]\n// Session payment succeeded!\nprint("Hello from FlashPay session!");`;
+        } else {
+          const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: description.replace(/<[^>]*>?/gm, '') },
+            ],
+            max_tokens: 1024,
+          });
+          extracted = completion.choices[0]?.message?.content || "";
+        }
+        await releasePayment(nonce);
+        return Response.json({ result: extracted, nonce });
+      } catch (e) {
+        await refundPayment(nonce);
+        captureException(e);
+        return Response.json({ error: "AI API Failed, session payment refunded.", sessionExpired: false }, { status: 500 });
+      }
+    }
+
     const paymentNonce = req.headers.get("x-payment-nonce");
     const payerAddress = req.headers.get("x-payer-address");
 
