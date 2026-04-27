@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletConnect } from "./WalletConnect";
-import { Zap, MessageSquare, Image, FileText, Code, PieChart } from "lucide-react";
+import { Zap, MessageSquare, Image, FileText, Code, PieChart, Info } from "lucide-react";
 
 const navItems = [
   { href: "/tools/image", label: "Image", icon: Image },
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/tools/code", label: "Code", icon: Code },
   { href: "/assistant", label: "Assistant", icon: MessageSquare },
   { href: "/dashboard", label: "Dashboard", icon: PieChart },
+  { href: "/about", label: "About", icon: Info },
 ];
 
 export function Navbar() {
