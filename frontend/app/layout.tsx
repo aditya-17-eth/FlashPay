@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { QueryProvider } from "./QueryProvider";
 
 export default function RootLayout({
@@ -17,10 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased min-h-screen pb-12 bg-black text-white">
+      <body className="antialiased min-h-screen flex flex-col bg-black text-white">
         <QueryProvider>
           <Navbar />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
+          <Footer />
         </QueryProvider>
       </body>
     </html>
