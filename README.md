@@ -270,16 +270,19 @@ Enable Row Level Security with public read-only policies.
 FlashPay implements account abstraction by facilitating Session-based pre-authorization via on-chain state, solving the primary UX friction of frequent wallet popups for micropayments.
 
 ### Flow:
+
 1. **Allocate:** User signs a single transaction via Freighter to deposit a USDC budget into the escrow contract, defining expiration and max allowance per transaction.
 2. **Authorize via backend:** The user receives a session key mapped to their wallet.
-3. **Execute:** Subsequent AI tool usages deduct from the assigned session budget *without any Freighter wallet popups*. The backend facilitates usage logging directly with Supabase via the pre-approved escrow allowance.
+3. **Execute:** Subsequent AI tool usages deduct from the assigned session budget _without any Freighter wallet popups_. The backend facilitates usage logging directly with Supabase via the pre-approved escrow allowance.
 
 ### Benefits:
+
 - **Zero-Friction AI:** Fast, automated generation bypassing 402 waiting states.
 - **Micro UI state:** Dedicated 'FlashPay Session Active' dashboard headers notify users of active time limits.
 - **Fully local:** Graceful degradation on session expiration returns the user back to standard per-use prompts.
 
 ### Links:
+
 - **Contract logic:** `contracts/flashpay-escrow/src/lib.rs` (Reference `create_session` and `lock_payment_session`)
 - **Frontend library:** `frontend/lib/session.ts`
 - **UI:** `frontend/components/wallet/SessionManager.tsx`
@@ -298,6 +301,32 @@ FlashPay implements account abstraction by facilitating Session-based pre-author
 | neel pote     | GBKLRBXJFBC7SFNZ6PWM5WRHKEOD3PONHYE4UY2N6NJEF3BNS2KU65SV | neelpote44@gmail.com       | option to genrate multiple images at once               | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
 | Sarthak Dhere | GCRYPAQB3TFLQE727TA3R723QIEPTP5KCMP7OMH4HVXNLCEUKPD4AZJP | sarthakdhere0217@gmail.com | no there where no bugs                                  | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
 | Viru Shelke   | GD5II5CFYRMH6ZNL33K3BT74T4WMXRG6EMGPUIEUAXRKUKVQ3A5ZTAPB | indravardhan10@gmail.com   | Could improve the landing page insights                 | f8f91bb4428166a5d6914cd363f3aa78f7440fad |
+| Chirag Pardeshi | GCCIMBD7AHY2WFUV7GXJ37DAVYO2FXK2OIDARUVS4RQRIOUY2ZTQTBKG | chiragpardeshi493@gmail.com | nice ui preferred |  |
+| Dhruva Mandavkar | GA5LFJFRZ6356U2UB37NQGOCZJVLF42FZETM3OMPTP2EZ2QQUFCICQBF | dhruvamandavkar10@gmail.com | A resume analysis checker that checks and rates your resume. |  |
+| Shubham Bhosale | GAOJPUXIQQBK4SVA4RYQ2MUKHAUUHHJDFQFHYAYY6M4LO7ULDJO7PXXR | shubhambhosale9833@gmail.com | Could add more documents formats for ai analysis |  |
+| Omkar Jagtap | GALPMWKLCNINAXN6L6Z5MOS2Y2Z4BFTP3MQDUX4A22VAL3WBV3BLQVX3 | omkarjagtap2105@gmail.com | add a more informative ui |  |
+| Sarthak Kshirsagar | GCCGWE7UVX6W746FFYD55THU2KM4XOT2EJGFRZK4K5KISZDUAIN7VDZG | kshirsagarsarthak9@gmail.com | PDF tool helps summarize better than anyother tools online |  |
+| Aniket Bhilare | GABAKQPPTWRW6QDR7WSNVXO3QA67B3O5EG6P75SOPQK7GATBFRRR3GFS | bhilareaniket2424@gmail.com | A single wallet signing feature where multiple tools can be used for a limited time or amount. |  |
+| Thanchan Bhumij | GCZYQCKPUBOHOL5VONWJOLHNULLTBE5YR7KRH2OK6LZAO4EL6S2QZXYZ | thanchanb@gmail.com | add better navigation |  |
+| Shantanu Udhane | GBLAKFNA2MGGK2F6SCPTEWL3HSI7G4CK4BL6XOFTNPHALXMPECLQKP2F | udhaneshantanu@gmail.com | a security page should be added telling users about how secure the dapp is. |  |
+| yash annadate | GCFPZLS4FSNHSD5HKVMES2Y26XCLTD3BO2G6EY2NQT4JHGYW6GWTQSJX | yashannadate2005@gmail.com | options to choose from multiple models for various tools |  |
+| Kapil Shisodiya | GA367DTGT5S5UZSFN4M24SWL2OOXYFX5PDFNFRN5ORC4UIAKG3VHBPU5 | kapilshisodiya1308@gmail.com | need a better about section |  |
+| Purvai Naik | GB5OKLSWWQIMG4BQCA7QKMOTAVYTZ5KUV7B62LROPEYRPYGUGWRCRKG4 | purvai1246@gmail.com | needs a how to use |  |
+| Khushi Shinde | GDUVJHIQJ2MPCUGI2XLDSON6PS5Q4CW2ADOP2BXVZYWS3LHXAAH2LLC7 | shindekhushi892003@gmail.com | add more features |  |
+| Atharva bamble | GCYFYUN6Y7PWXVTBMFGBAGZ6MKD2LIOHKRQUGZLXULYTDJVJZFCES72B | atharvabamble@gmail.com | tracking your limits should be added |  |
+| Akansha patil | GCU3MRFMKVSV6I6UVEICCS4TON3WA2YNO7URCENEMI7BBE4GLSNYORIX | akankshapatil2099@gmail.com | Add a logo for recognition |  |
+| NEEV AGRAWAL | GD3M2PRHPNWTEV6INIYKDNTE3MWQJ3RWCA6JVG433EQ3ID6MDPYPN7W2 | neevagrawal328@gmail.com | Add a light and dark theme |  |
+| Tejashwi Kasture | GDQRLHQH7OZJI3OJ5HUL7DWGOTFRW734QC3EYJOMET5MVBLTQI4VGRXT | kasturetejaswhi@gmail.com | add more document formats for tools like pdf analyzer |  |
+| Atharva Shinde | GAC2SOG32Y62BBQCFUTDJSVFJRVMKATMYKPLSBUJFYPN27KYQ5U6IKCT | satharvashinde7551@gmail.com | give some free tokens to users |  |
+| Atharva Koyte | GCPN4OERNLJEXQXNZJ3SMA6PA7EVK5EPQ3IEX22CXX4BXS2FVNOVJ34L | atharva.koyte@mitwpu.edu.in | Needs a  good ui |  |
+| Akshay Awasthy | GARBOAAO2N7WD47ILMIEDJGVQQZDY2TUNUDIGBQHGPPNPEA7GX7MYUGP | akshayawasthy83@gmail.com | needs better logic for escrow handling |  |
+| Sneha Pathak | GDCUYJNELLBR7AN7OB4D56VDCBLBPQIKYUBECQOYMSD3VONNE7NRMITH | sneha.pathak@gmail.com | more auth login |  |
+| Meera Joshi | GBRGGGVT2IBQUW7CQMTTZWVBGQT7YJM5KLKGQWXJ7OCGY7NZXLIKLUDX | meera.joshi.pune@gmail.com | extra tools |  |
+| Samar Kudale | GD7GH6UJRV373QNY2YXGURQS7U5KL44MSIENJVKXHIJDKLTTUGUIP6BL | samarkudale3@gmail.com | frontend needs better ui |  |
+| Ronit Wadkar | GCXGTYYJKJOO6ARFWSIFWWLRP2OOH77Y3JLPF3RI7WZ7IHPXBNMHS6JM | ronitwadkar68@gmail.com | summarizing bullet points tool |  |
+| Rajesh Das | GC22MRKOZK4V7MWH2ARTGNSIFSUSB2GOAZVZ3HZGW3U2ACS5GJVIDL3Y | rajeshdas81@gmail.com | An about section |  |
+| Dhruv Patnekar | GAITQAFXKSZSZCZMTRZUQC4I7IQWBRWH4QZ5E7ER3IGFJKO6MNFYIIQ5 | dhruv.patnekar@gmail.com | Add a about section page |  |
+| Aditya Shisodiya | GAOYOWIZPQTSN7RXRU27DLO6NOA445CBK55FNB7Z6PQIULJZ2YFETKEW | adityasisodiya56412@gmail.com | And a about section page |  |
 
 ---
 
