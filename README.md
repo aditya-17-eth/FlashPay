@@ -162,6 +162,7 @@ flashpay/
 Landing Page ![Landing Page](assets/landing-page.png)
 AI Assistant ![AI Assistant](assets/ai-assistant.png)
 Metric Dashboard ![Dashboard](assets/dashboard.png)
+Security Audit ![Security Audit](assets/security-audit.png)
 
 Mobile View
 
