@@ -162,7 +162,7 @@ export function WalletConnect() {
         </button>
 
         {Number(usdcBalance) <= 0.01 ? (
-          <div className="absolute top-full right-0 mt-10 w-full z-40 opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
+          <div className="absolute top-full right-0 mt-10 w-max z-40 flex justify-end">
             <USDCFaucet
               userPublicKey={wallet}
               onSuccess={() => {
