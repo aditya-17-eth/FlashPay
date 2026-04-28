@@ -183,6 +183,7 @@ Mobile View
 > _Read the official launch announcement and thread about FlashPay on Twitter (X)._
 
 🔗 **Twitter Post:**
+https://x.com/i/status/2049042389105562055
 
 ---
 
